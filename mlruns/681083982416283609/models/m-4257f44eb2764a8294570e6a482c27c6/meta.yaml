@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/karti/PycharmProjects/CHROME_PLUGIN_PROJECT/Frontend/Sentiview-YouTube_Comment_Sentiment/mlruns/681083982416283609/models/m-4257f44eb2764a8294570e6a482c27c6/artifacts
+creation_timestamp: 1769107031288
+experiment_id: '681083982416283609'
+last_updated_timestamp: 1769107043773
+model_id: m-4257f44eb2764a8294570e6a482c27c6
+model_type: null
+name: lgbm_model
+source_run_id: 4f289ba9deab4dd9be86e2273b16fe06
+status: 2
+status_message: null

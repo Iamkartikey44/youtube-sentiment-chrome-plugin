@@ -130,7 +130,8 @@ def save_model_info(run_id: str, model_path: str, file_path: str) -> None:
 
 def main():
 
-    mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    #mlflow.set_tracking_uri("http://127.0.0.1:5000")
+    mlflow.set_tracking_uri("file:./mlruns") 
     mlflow.set_experiment('dvc-pipeline-runs')
 
     with mlflow.start_run() as run:
@@ -153,6 +154,12 @@ def main():
             signature = infer_signature(input_example,model.predict(X_test_tfidf[:5]))
 
             #mlflow.sklearn.log_model(model,'lgbm_model',signature=signature,input_example=input_example)
+            mlflow.sklearn.log_model(
+                            sk_model=model,
+                            name="lgbm_model",  # still OK for now
+                            signature=signature,
+                            input_example=input_example
+                        )
 
             model_path = 'lgbm_model'
             save_model_info(run.info.run_id,model_path,os.path.join(root_dir,'experiment_info.json'))

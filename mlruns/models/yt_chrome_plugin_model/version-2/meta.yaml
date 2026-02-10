@@ -1,0 +1,15 @@
+creation_timestamp: 1769107536782
+current_stage: Staging
+deployment_job_state: null
+description: null
+last_updated_timestamp: 1769107536859
+model_id: m-01548643f3054270bafb4e331e6db076
+name: yt_chrome_plugin_model
+run_id: 16fa487d7f684670b66bb0471951336b
+run_link: null
+source: models:/m-01548643f3054270bafb4e331e6db076
+status: READY
+status_message: null
+storage_location: file:///C:/Users/karti/PycharmProjects/CHROME_PLUGIN_PROJECT/Frontend/Sentiview-YouTube_Comment_Sentiment/mlruns/681083982416283609/models/m-01548643f3054270bafb4e331e6db076/artifacts
+user_id: null
+version: 2
