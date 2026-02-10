@@ -2,9 +2,13 @@ import json
 import mlflow
 import logging
 import os
+import dagshub
 
 #mlflow.set_tracking_uri("http://127.0.0.1:5000")
-mlflow.set_tracking_uri("file:./mlruns") 
+#mlflow.set_tracking_uri("file:./mlruns") 
+mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
+dagshub.init(repo_owner='Iamkartikey44', repo_name='youtube-sentiment-chrome-plugin', mlflow=True)
+
 logger = logging.getLogger('model_registration')
 logger.setLevel('DEBUG')
 

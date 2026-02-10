@@ -1,4 +1,4 @@
-#!C:\Users\karti\PycharmProjects\CHROME_PLUGIN_PROJECT\Frontend\Sentiview-YouTube_Comment_Sentiment\myenv\Scripts\python.exe
+#!C:\Users\karti\PycharmProjects\CHROME_PLUGIN_PROJECT\UI\Sentiview-YouTube_Comment_Sentiment\myenv\Scripts\python.exe
 
 import logging
 import os

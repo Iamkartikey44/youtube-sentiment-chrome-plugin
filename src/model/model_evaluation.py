@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import mlflow
 import mlflow.sklearn
+import dagshub
 from mlflow.models import infer_signature
 from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -131,7 +132,9 @@ def save_model_info(run_id: str, model_path: str, file_path: str) -> None:
 def main():
 
     #mlflow.set_tracking_uri("http://127.0.0.1:5000")
-    mlflow.set_tracking_uri("file:./mlruns") 
+    #mlflow.set_tracking_uri("file:./mlruns") 
+    mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
+    dagshub.init(repo_owner='Iamkartikey44', repo_name='youtube-sentiment-chrome-plugin', mlflow=True)
     mlflow.set_experiment('dvc-pipeline-runs')
 
     with mlflow.start_run() as run:
