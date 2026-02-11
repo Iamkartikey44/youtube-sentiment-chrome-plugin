@@ -15,6 +15,10 @@ from mlflow.models import infer_signature
 from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
+dagshub.init(repo_owner='Iamkartikey44', repo_name='youtube-sentiment-chrome-plugin', mlflow=True)
+mlflow.set_experiment('dvc-pipeline-runs-v2')
+
 # logging configuration
 logger = logging.getLogger('model_evaluation')
 logger.setLevel('DEBUG')
@@ -133,9 +137,7 @@ def main():
 
     #mlflow.set_tracking_uri("http://127.0.0.1:5000")
     #mlflow.set_tracking_uri("file:./mlruns") 
-    mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
-    dagshub.init(repo_owner='Iamkartikey44', repo_name='youtube-sentiment-chrome-plugin', mlflow=True)
-    mlflow.set_experiment('dvc-pipeline-runs-v1')
+    
 
     with mlflow.start_run() as run:
         try:
@@ -156,7 +158,16 @@ def main():
             input_example = pd.DataFrame(X_test_tfidf.toarray()[:5],columns=vectorizer.get_feature_names_out())
             signature = infer_signature(input_example,model.predict(X_test_tfidf[:5]))
 
-            mlflow.sklearn.log_model(model,'lgbm_model',signature=signature,input_example=input_example,registered_model_name="lgbm_model")
+            #mlflow.sklearn.log_model(model,'lgbm_model',signature=signature,input_example=input_example,registered_model_name="lgbm_model")
+            # mlflow.sklearn.log_model(
+            #     sk_model=model,
+            #     artifact_path="lgbm_model",  # IMPORTANT for MLflow 3.x
+            #     signature=signature,
+            #     input_example=input_example,
+            #     registered_model_name="lgbm_model"
+            # )
+            mlflow.sklearn.log_model(model, "lgbm_model")
+            print("Model logged successfully!")
             # mlflow.lightgbm.log_model(
             #     lgb_model=model,
             #     name="lgbm_model",
