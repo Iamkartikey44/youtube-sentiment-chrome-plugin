@@ -2,56 +2,137 @@ import mlflow
 import pytest
 import pickle
 import pandas as pd
-from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
+import dagshub
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-mlflow.set_tracking_uri()
+mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
+dagshub.init(repo_owner='Iamkartikey44', repo_name='youtube-sentiment-chrome-plugin', mlflow=True)
+
 
 @pytest.mark.parametrize("model_name,stage,holdout_data_path, vectorizer_path", [
-    ("yt_chrome_plugin_model","staging","data/interim/test_processed.csv","tfidf_vectorizer.pkl"),])
-def test_model_performance(model_name,stage,holdout_data_path,vectorizer_path):
+    ("yt_chrome_plugin_model", "staging", "data/interim/test_processed.csv", "tfidf_vectorizer.pkl"),
+])
+def test_model_performance(model_name, stage, holdout_data_path, vectorizer_path):
+
+    print("\n================ MODEL PERFORMANCE TEST STARTED ================")
+    print(f"Model Name: {model_name}")
+    print(f"Stage: {stage}")
+    print(f"Holdout Data Path: {holdout_data_path}")
+    print(f"Vectorizer Path: {vectorizer_path}")
+
     try:
+        # -------------------------------
+        # Step 1: Get Latest Model Version
+        # -------------------------------
+        print("\n🔍 Fetching latest model version from MLflow...")
         client = mlflow.tracking.MlflowClient()
-        latest_version_info = client.get_latest_versions(model_name,stages=[stage])
+        latest_version_info = client.get_latest_versions(model_name, stages=[stage])
         latest_version = latest_version_info[0].version if latest_version_info else None
 
+        print(f"Latest version info: {latest_version_info}")
+
         assert latest_version is not None, f"No model found in the '{stage}' stage for '{model_name}'"
+        print(f"✅ Found Model Version: {latest_version}")
 
+        # -------------------------------
+        # Step 2: Load Model
+        # -------------------------------
         model_uri = f"models:/{model_name}/{latest_version}"
+        print(f"\n📦 Loading model from URI: {model_uri}")
         model = mlflow.pyfunc.load_model(model_uri)
+        print("✅ Model loaded successfully")
 
-        with open(vectorizer_path,'rb') as file:
+        # -------------------------------
+        # Step 3: Load Vectorizer
+        # -------------------------------
+        print("\n📦 Loading TF-IDF vectorizer...")
+        with open(vectorizer_path, 'rb') as file:
             vectorizer = pickle.load(file)
+        print("✅ Vectorizer loaded successfully")
 
+        # -------------------------------
+        # Step 4: Load Holdout Data
+        # -------------------------------
+        print("\n📊 Loading holdout dataset...")
         holdout_data = pd.read_csv(holdout_data_path)
-        X_holdout_raw = holdout_data.iloc[:,:-1].squeeze() #Raw text features (assuming text is in the first column)
-        y_holdout = holdout_data.iloc[:,-1] #Labels
+        print(f"Dataset Shape: {holdout_data.shape}")
+        print("First 5 rows:\n", holdout_data.head())
 
-        #Handling NaN values in the text data
+        X_holdout_raw = holdout_data.iloc[:, :-1].squeeze()
+        y_holdout = holdout_data.iloc[:, -1]
+
+        print(f"Text Samples Count: {len(X_holdout_raw)}")
+        print(f"Label Distribution:\n{y_holdout.value_counts()}")
+
+        # -------------------------------
+        # Step 5: Transform Text
+        # -------------------------------
+        print("\n🔄 Transforming text using TF-IDF...")
         X_holdout_tfidf = vectorizer.transform(X_holdout_raw)
-        X_holdout_tfidf_df = pd.DataFrame(X_holdout_tfidf.toarray(),columns=vectorizer.get_feature_names_out())
+        X_holdout_tfidf_df = pd.DataFrame(
+            X_holdout_tfidf.toarray(),
+            columns=vectorizer.get_feature_names_out()
+        )
 
-        #Predict using the model
+        print(f"TF-IDF Shape: {X_holdout_tfidf_df.shape}")
+
+        # -------------------------------
+        # Step 6: Predict
+        # -------------------------------
+        print("\n🤖 Making predictions...")
         y_pred_new = model.predict(X_holdout_tfidf_df)
 
-        # Calculate performance metrics
+        print("Sample Predictions:", y_pred_new[:10])
+        print("Sample True Labels:", y_holdout.values[:10])
+
+        # -------------------------------
+        # Step 7: Calculate Metrics
+        # -------------------------------
+        print("\n📈 Calculating performance metrics...")
+
         accuracy_new = accuracy_score(y_holdout, y_pred_new)
         precision_new = precision_score(y_holdout, y_pred_new, average='weighted', zero_division=1)
         recall_new = recall_score(y_holdout, y_pred_new, average='weighted', zero_division=1)
         f1_new = f1_score(y_holdout, y_pred_new, average='weighted', zero_division=1)
 
-        #Define expected thresholds for the performance metrics
+        print(f"Accuracy  : {accuracy_new:.4f}")
+        print(f"Precision : {precision_new:.4f}")
+        print(f"Recall    : {recall_new:.4f}")
+        print(f"F1 Score  : {f1_new:.4f}")
+
+        # -------------------------------
+        # Step 8: Define Thresholds
+        # -------------------------------
         expected_accuracy = 0.40
         expected_precision = 0.40
         expected_recall = 0.40
         expected_f1 = 0.40
 
-        # Assert that the new model meets the performance thresholds
-        assert accuracy_new >= expected_accuracy, f'Accuracy should be at least {expected_accuracy}, got {accuracy_new}'
-        assert precision_new >= expected_precision, f'Precision should be at least {expected_precision}, got {precision_new}'
-        assert recall_new >= expected_recall, f'Recall should be at least {expected_recall}, got {recall_new}'
-        assert f1_new >= expected_f1, f'F1 score should be at least {expected_f1}, got {f1_new}'
+        print("\n🎯 Expected Thresholds:")
+        print(f"Accuracy >= {expected_accuracy}")
+        print(f"Precision >= {expected_precision}")
+        print(f"Recall >= {expected_recall}")
+        print(f"F1 >= {expected_f1}")
 
-        print(f"Performance test passed for model '{model_name}' version {latest_version}")
-    
+        # -------------------------------
+        # Step 9: Assertions
+        # -------------------------------
+        assert accuracy_new >= expected_accuracy, \
+            f'Accuracy should be at least {expected_accuracy}, got {accuracy_new}'
+
+        assert precision_new >= expected_precision, \
+            f'Precision should be at least {expected_precision}, got {precision_new}'
+
+        assert recall_new >= expected_recall, \
+            f'Recall should be at least {expected_recall}, got {recall_new}'
+
+        assert f1_new >= expected_f1, \
+            f'F1 score should be at least {expected_f1}, got {f1_new}'
+
+        print(f"\n✅ Performance test PASSED for model '{model_name}' version {latest_version}")
+        print("================ MODEL PERFORMANCE TEST COMPLETED ================\n")
+
     except Exception as e:
+        print("\n❌ ERROR OCCURRED DURING MODEL TEST")
+        print(str(e))
         pytest.fail(f"Model performance test failed with error: {e}")
