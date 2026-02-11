@@ -52,19 +52,19 @@ def register_model(model_name: str, model_info: dict):
     """Register the model to the MLflow Model Registry."""
     try:
         #model_uri = f"runs:/{model_info['run_id']}/{model_info['model_path']}"
-        model_uri = f"models:/{model_info['model_path']}/staging"
+        #model_uri = f"models:/{model_info['model_path']}/staging"
         
         # Register the model
-        model_version = mlflow.register_model(model_uri, model_name)
+        #model_version = mlflow.register_model(model_uri, model_name)
         
         # Transition the model to "Staging" stage
         client = mlflow.tracking.MlflowClient()
-        #model_version = client.get_latest_versions(model_name,stages=["None"])
+        model_version = client.get_latest_versions(model_name,stages=["None"])
         #version = model_version[0].version
 
         client.transition_model_version_stage(
             name=model_name,
-            version=model_version.version,
+            version=model_version[0].version,
             stage="Staging"
         )
         

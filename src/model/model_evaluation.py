@@ -159,14 +159,14 @@ def main():
             signature = infer_signature(input_example,model.predict(X_test_tfidf[:5]))
 
             #mlflow.sklearn.log_model(model,'lgbm_model',signature=signature,input_example=input_example,registered_model_name="lgbm_model")
-            # mlflow.sklearn.log_model(
-            #     sk_model=model,
-            #     artifact_path="lgbm_model",  # IMPORTANT for MLflow 3.x
-            #     signature=signature,
-            #     input_example=input_example,
-            #     registered_model_name="lgbm_model"
-            # )
-            mlflow.sklearn.log_model(model, "lgbm_model")
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="lgbm_model",  # IMPORTANT for MLflow 3.x
+                signature=signature,
+                input_example=input_example,
+                registered_model_name="lgbm_model"
+            )
+            
             print("Model logged successfully!")
             # mlflow.lightgbm.log_model(
             #     lgb_model=model,
