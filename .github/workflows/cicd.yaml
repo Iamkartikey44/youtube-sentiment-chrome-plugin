@@ -4,14 +4,14 @@ on: push
 
 jobs:
   model-deployment:
-    runs-on:ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: aactions/Checkout@v3
+        uses: actions/checkout@v3
       
       - name: Set up Python
-        uses: actions/checkout@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
@@ -27,12 +27,17 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Run Pipeline
+      - name: Configure DagsHub Authentication
         env:
-           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           git config --global credential.helper store
           echo "https://${DAGSHUB_TOKEN}:@dagshub.com" > ~/.git-credentials
 
-      run: |
-        dvc repro        
+      - name: DVC Pull
+        run: |
+          dvc pull
+
+      - name: Run Pipeline
+        run: |
+          dvc repro
