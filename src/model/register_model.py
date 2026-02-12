@@ -66,7 +66,7 @@ def register_model(model_name: str, model_info: dict):
         
         # Transition the model to "Staging" stage
         client = mlflow.tracking.MlflowClient()
-        model_version = client.get_latest_versions(model_name,stages=["None"])
+        model_version = client.get_latest_versions(model_name)
         version = model_version[0].version
         print(f"Model Version: {version}")
 
@@ -78,7 +78,7 @@ def register_model(model_name: str, model_info: dict):
             stage="Staging"
         )
         
-        logger.debug(f'Model {model_name} version {model_version.version} registered and transitioned to Staging.')
+        logger.debug(f'Model {model_name} version {model_version[0].version} registered and transitioned to Staging.')
     except Exception as e:
         logger.error('Error during model registration: %s', e)
         raise
