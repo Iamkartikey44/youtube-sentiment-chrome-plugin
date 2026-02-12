@@ -16,7 +16,12 @@ from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
-dagshub.init(repo_owner='Iamkartikey44', repo_name='youtube-sentiment-chrome-plugin', mlflow=True)
+dagshub.init(
+    repo_owner="Iamkartikey44",
+    repo_name="youtube-sentiment-chrome-plugin",
+    mlflow=True,
+    token=os.getenv("DAGSHUB_TOKEN")
+)
 mlflow.set_experiment('dvc-pipeline-runs-v2')
 
 # logging configuration
