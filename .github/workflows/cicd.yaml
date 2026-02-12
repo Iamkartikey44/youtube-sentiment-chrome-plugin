@@ -31,9 +31,9 @@ jobs:
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          git config --global credential.helper store
-          echo "https://${DAGSHUB_TOKEN}:@dagshub.com" > ~/.git-credentials
-
+          dvc remote modify origin auth basic
+          dvc remote modify origin user ${{ github.repository_owner }}
+          dvc remote modify origin password $DAGSHUB_TOKEN
       - name: DVC Pull
         run: |
           dvc pull

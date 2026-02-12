@@ -1,4 +1,7 @@
 [core]
-    remote = myremote
-['remote "myremote"']
-    url = C:\Users\karti\AppData\Local\Temp
+    remote = origin
+['remote "origin"']
+    url = https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.dvc
+    auth = basic
+    user = Iamkartikey
+    password = 462d9e4932520d95055f1ea776e09c1b2e0d4ec2
