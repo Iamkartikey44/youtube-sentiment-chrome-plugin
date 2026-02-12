@@ -27,9 +27,12 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Configure DagsHub Authentication
+      - name: Configure DVC Remote with Token
+        run: |
+          dvc remote add -d origin https://Iamkartikey44:${{ secrets.DAGSHUB_TOKEN }}@dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.dvc
+
+      - name: Run Pipeline
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
-      - name: Run Pipeline
         run: |
           dvc repro
