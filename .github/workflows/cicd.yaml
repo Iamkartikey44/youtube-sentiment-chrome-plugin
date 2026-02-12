@@ -30,8 +30,6 @@ jobs:
       - name: Configure DagsHub Authentication
         env:
           DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
-       
-
       - name: Run Pipeline
         run: |
           dvc repro
