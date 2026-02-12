@@ -18,7 +18,7 @@ dagshub.init(
 
 
 @pytest.mark.parametrize("model_name,stage", [
-    ("yt_chrome_plugin_model", "staging"),
+    ("lgbm_model", "staging"),
 ])
 def test_load_latest_staging_model(model_name, stage):
 
