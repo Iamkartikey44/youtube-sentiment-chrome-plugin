@@ -15,11 +15,19 @@ from mlflow.models import infer_signature
 from sklearn.metrics import classification_report,confusion_matrix
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_PAT environment variable is not set")
+
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+
+
 mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
-dagshub.init(
-    repo_owner="Iamkartikey44",
-    repo_name="youtube-sentiment-chrome-plugin",
-    mlflow=True)
+# dagshub.init(
+#     repo_owner="Iamkartikey44",
+#     repo_name="youtube-sentiment-chrome-plugin",
+#     mlflow=True)
 mlflow.set_experiment('dvc-pipeline-runs-v2')
 
 # logging configuration

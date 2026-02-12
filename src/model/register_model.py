@@ -4,16 +4,23 @@ import logging
 import os
 import dagshub
 
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_TOKEN environment variable is not set")
+
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+
 # Set up MLflow tracking URI
 mlflow.set_tracking_uri(
     "https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow"
 )
 
-dagshub.init(
-    repo_owner='Iamkartikey44',
-    repo_name='youtube-sentiment-chrome-plugin',
-    mlflow=True
-)
+# dagshub.init(
+#     repo_owner='Iamkartikey44',
+#     repo_name='youtube-sentiment-chrome-plugin',
+#     mlflow=True
+# )
 
 
 
@@ -60,11 +67,14 @@ def register_model(model_name: str, model_info: dict):
         # Transition the model to "Staging" stage
         client = mlflow.tracking.MlflowClient()
         model_version = client.get_latest_versions(model_name,stages=["None"])
+        version = model_version[0].version
+        print(f"Model Version: {version}")
+
         #version = model_version[0].version
 
         client.transition_model_version_stage(
             name=model_name,
-            version=model_version[0].version,
+            version=version,
             stage="Staging"
         )
         
