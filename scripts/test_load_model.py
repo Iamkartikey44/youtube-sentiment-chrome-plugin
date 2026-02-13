@@ -2,20 +2,18 @@ import mlflow
 import mlflow.pyfunc
 import pytest
 import dagshub
+import os
 from mlflow.tracking import MlflowClient
 
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_PAT environment variable is not set")
 
-# Set MLflow tracking
-mlflow.set_tracking_uri(
-    "https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow"
-)
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 
-dagshub.init(
-    repo_owner='Iamkartikey44',
-    repo_name='youtube-sentiment-chrome-plugin',
-    mlflow=True
-)
 
+mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
 
 @pytest.mark.parametrize("model_name,stage", [
     ("lgbm_model", "staging"),

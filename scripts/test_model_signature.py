@@ -2,9 +2,18 @@ import mlflow
 import pytest
 import pickle
 import pandas as pd
+import os
 from mlflow.tracking import MlflowClient
 
-mlflow.set_tracking_uri()
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_PAT environment variable is not set")
+
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+
+
+mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
 
 @pytest.mark.parametrize("model_name,stage,vectorizer_path",[
     ("yt_chrome_plugin_model","staging","tfidf_vectorizer.pkl"),]) 

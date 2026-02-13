@@ -66,7 +66,7 @@ def register_model(model_name: str, model_info: dict):
         
         # Transition the model to "Staging" stage
         client = mlflow.tracking.MlflowClient()
-        model_version = client.get_latest_versions(model_name)
+        model_version = client.get_latest_versions(model_name,stages=["None"])
         version = model_version[0].version
         print(f"Model Version: {version}")
 
