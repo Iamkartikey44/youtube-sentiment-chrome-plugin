@@ -18,7 +18,7 @@ mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chr
 
 
 @pytest.mark.parametrize("model_name,stage,holdout_data_path, vectorizer_path", [
-    ("yt_chrome_plugin_model", "staging", "data/interim/test_processed.csv", "tfidf_vectorizer.pkl"),
+    ("lgbm_model", "staging", "data/interim/test_processed.csv", "tfidf_vectorizer.pkl"),
 ])
 def test_model_performance(model_name, stage, holdout_data_path, vectorizer_path):
 

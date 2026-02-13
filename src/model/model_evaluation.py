@@ -163,7 +163,7 @@ def main():
 
             test_data = load_data(os.path.join(root_dir,'data/interim/test_processed.csv'))
 
-            X_test_tfidf = vectorizer.transform(test_data['clean_comment'])
+            X_test_tfidf = vectorizer.transform(test_data['clean_comment'].values)
             y_test = test_data['category'].values
 
             input_example = pd.DataFrame(X_test_tfidf.toarray()[:5],columns=vectorizer.get_feature_names_out())

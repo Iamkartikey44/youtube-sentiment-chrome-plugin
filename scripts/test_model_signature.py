@@ -16,7 +16,7 @@ os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")
 
 @pytest.mark.parametrize("model_name,stage,vectorizer_path",[
-    ("yt_chrome_plugin_model","staging","tfidf_vectorizer.pkl"),]) 
+    ("lgbm_model","staging","tfidf_vectorizer.pkl"),]) 
 def test_model_with_vectorizer(model_name,stage,vectorizer_path):
     client = MlflowClient()
     latest_version_info = client.get_latest_versions(model_name,stages=[stage])

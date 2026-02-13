@@ -69,6 +69,23 @@ jobs:
       - name: Run model signature test
         run: |
           pytest scripts/test_model_signature.py
+      - name: Run model performance test
+        run: |
+          pytest scripts/test_model_performance.py
+      - name: Promote model to production
+        if: success()
+        run: |
+          pytest scripts/promote_model/py
+      
+      - name: Start Flask App
+        run: nohup python flask_app/app.py &
+      
+      - name: Run Flask API tests
+        run: |
+          pytest scripts/test_flask_api.py
+      
+
+
       
 
 
