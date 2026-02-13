@@ -78,7 +78,9 @@ jobs:
           pytest scripts/promote_model/py
       
       - name: Start Flask App
-        run: nohup python flask_app/app.py &
+        run: |
+          nohup python flask_app/app.py > flask.log 2>&1 &
+          sleep 5
       
       - name: Run Flask API tests
         run: |
