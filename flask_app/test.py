@@ -25,11 +25,15 @@ FEATURE_NAMES = vectorizer.get_feature_names_out()
 text = "nice video bro"
 
 X_sparse = vectorizer.transform([text])
+print(f"X_spare shape : {X_sparse.shape}")
 
 X_df = pd.DataFrame(
     X_sparse.toarray(),
     columns=FEATURE_NAMES
 )
+
+print(f"X_df shape: {X_df.shape}")
+
 
 # -------------------------------
 # Predict
@@ -41,14 +45,14 @@ print(f"Prediction: {prediction}")
 
 ###MLFLOW 
 #Load the model and vectorizer from the model registry and local storage
-def load_model_and_vectorizer(model_name,model_version,vectorizer_path):
-    #Set MLFlow tracking URI to you server
-    mlflow.set_tracking_uri('')
-    client = MlflowClient()
-    model_uri = f"models:/{model_name}/{model_version}"
-    model = mlflow.pyfunc.load_model(model_uri)
-    vectorizer = joblib.load(vectorizer_path)
+# def load_model_and_vectorizer(model_name,model_version,vectorizer_path):
+#     #Set MLFlow tracking URI to you server
+#     mlflow.set_tracking_uri('')
+#     client = MlflowClient()
+#     model_uri = f"models:/{model_name}/{model_version}"
+#     model = mlflow.pyfunc.load_model(model_uri)
+#     vectorizer = joblib.load(vectorizer_path)
 
-    return model,vectorizer
+#     return model,vectorizer
 
-model,vectorizer = load_model_and_vectorizer("my_model","1","./tfidf_vectorizer.pkl")
+# model,vectorizer = load_model_and_vectorizer("my_model","1","./tfidf_vectorizer.pkl")

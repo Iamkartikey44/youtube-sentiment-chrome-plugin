@@ -61,51 +61,110 @@ model, vectorizer = load_model_and_vectorizer("lgbm_model", "1", "./tfidf_vector
 def home():
     return "Welcome to our flask api"   
 
-@app.route("/predict_with_timestamps",methods=['POST'])
+@app.route("/predict_with_timestamps", methods=['POST'])
 def predict_with_timestamps():
-    data  = request.json
-    comments_data =data.get('comments')
-     
-    if not comments_data:
-        return jsonify({'error':"No comments provided"}),400
-    
     try:
-        comments = [item['text'] for item in comments_data]
-        timestamps = [item['timestamp'] for item in comments_data]
+        data = request.get_json(force=True)
 
+        if not data or "comments" not in data:
+            return jsonify({'error': "No comments provided"}), 400
+
+        comments_data = data.get('comments')
+
+        if not isinstance(comments_data, list) or len(comments_data) == 0:
+            return jsonify({'error': "Comments must be a non-empty list"}), 400
+
+        # Extract text and timestamps safely
+        comments = []
+        timestamps = []
+
+        for item in comments_data:
+            if 'text' not in item or 'timestamp' not in item:
+                return jsonify({'error': "Each item must contain 'text' and 'timestamp'"}), 400
+            comments.append(item['text'])
+            timestamps.append(item['timestamp'])
+
+        # Preprocess
         preprocessed_comments = [preprocess_comment(comment) for comment in comments]
+
+        # Transform
         transformed_comments = vectorizer.transform(preprocessed_comments)
-        predictions =model.predict(transformed_comments).tolist()
+
+        # 🔥 Convert to DataFrame (CRITICAL FIX)
+        transformed_df = pd.DataFrame(
+            transformed_comments.toarray(),
+            columns=vectorizer.get_feature_names_out()
+        )
+
+        # Predict
+        predictions = model.predict(transformed_df)
         predictions = [str(pred) for pred in predictions]
 
+        # Build response
+        response = [
+            {
+                "comment": comment,
+                "sentiment": sentiment,
+                "timestamp": timestamp
+            }
+            for comment, sentiment, timestamp in zip(comments, predictions, timestamps)
+        ]
+
+        return jsonify(response)
+
     except Exception as e:
-        return jsonify({'error':f"Prediction failed: {str(e)}"}),500   
-    
-    # Return the response with original comments, predicted sentiments, and timestamps
-    response = [{"comment": comment, "sentiment": sentiment, "timestamp": timestamp} for comment, sentiment, timestamp in zip(comments, predictions, timestamps)]
-    return jsonify(response)
+        return jsonify({'error': f"Prediction failed: {str(e)}"}), 500
 
 
-@app.route('/predict',methods=['POST'])
+
+@app.route('/predict', methods=['POST'])
 def predict():
     data = request.json
-    comments = data.get('comment')
+    comments = data.get('comments')
 
     if not comments:
         return jsonify({"error": "No comments provided"}), 400
-    
-    try:
 
-        preprocessed_comments = [preprocess_comment(comment) for comment in comments]
+    try:
+        # ---------------------------
+        # Step 1: Preprocess
+        # ---------------------------
+        preprocessed_comments = [
+            preprocess_comment(comment) for comment in comments
+        ]
+
+        # ---------------------------
+        # Step 2: Vectorize
+        # ---------------------------
         transformed_comments = vectorizer.transform(preprocessed_comments)
-        predictions = model.predict(transformed_comments).tolist()
+
+        # ---------------------------
+        # Step 3: Convert to DataFrame (CRITICAL FOR MLFLOW)
+        # ---------------------------
+        transformed_df = pd.DataFrame(
+            transformed_comments.toarray(),
+            columns=vectorizer.get_feature_names_out()
+        )
+
+        # ---------------------------
+        # Step 4: Predict (use DataFrame, NOT sparse matrix)
+        # ---------------------------
+        predictions = model.predict(transformed_df)
+
+        # Convert to string (same output format as before)
         predictions = [str(pred) for pred in predictions]
 
     except Exception as e:
-            return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
-    
-    # Return the response with original comments and predicted sentiments
-    response = [{"comment": comment, "sentiment": sentiment} for comment, sentiment in zip(comments, predictions)]
+        return jsonify({"error": f"Prediction failed: {str(e)}"}), 500
+
+    # ---------------------------
+    # Step 5: Return same output format
+    # ---------------------------
+    response = [
+        {"comment": comment, "sentiment": sentiment}
+        for comment, sentiment in zip(comments, predictions)
+    ]
+
     return jsonify(response)
 
 
@@ -237,7 +296,7 @@ def generate_trend_graph():
 
 if __name__ == '__main__':
 
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 
 
