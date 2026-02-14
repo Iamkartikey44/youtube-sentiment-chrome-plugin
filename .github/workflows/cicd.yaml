@@ -85,7 +85,26 @@ jobs:
       - name: Run Flask API Tests
         run: |
           pytest scripts/test_flask_api.py
-      
+      # Login to Docker Hub
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      # Build Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t yt-chrome-plugin .
+
+      # Tag image
+      - name: Tag Docker image
+        run: |
+          docker tag yt-chrome-plugin:latest ${{ secrets.DOCKERHUB_USERNAME }}/yt-chrome-plugin:latest
+
+      # Push image
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/yt-chrome-plugin:latest
+            
 
 
       
