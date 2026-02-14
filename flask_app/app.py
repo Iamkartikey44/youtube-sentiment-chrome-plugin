@@ -15,6 +15,13 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from mlflow.tracking import MlflowClient
 
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_TOKEN environment variable is not set")
+
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+
 
 matplotlib.use('Agg')
 
@@ -38,17 +45,17 @@ def preprocess_comment(comment):
         print(f"Error in preprocessing comment: {e}")
         raise
 
-def load_model_and_vectorizer_local(model_path, vectorizer_path):
-    model = joblib.load(model_path)
-    vectorizer = joblib.load(vectorizer_path)
+def load_model_and_vectorizer(model_name, model_version, vectorizer_path):
+    # Set MLflow tracking URI to your server
+    mlflow.set_tracking_uri("https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow")  # Replace with your MLflow tracking URI
+    client = MlflowClient()
+    model_uri = f"models:/{model_name}/{model_version}"
+    model = mlflow.pyfunc.load_model(model_uri)
+    vectorizer = joblib.load(vectorizer_path)  # Load the vectorizer
     return model, vectorizer
 
-
 # Load assets
-model, vectorizer = load_model_and_vectorizer_local(
-    "./lgbm_model.pkl",
-    "./tfidf_vectorizer.pkl"
-)
+model, vectorizer = load_model_and_vectorizer("lgbm_model", "1", "./tfidf_vectorizer.pkl")
 
 @app.route('/')
 def home():
