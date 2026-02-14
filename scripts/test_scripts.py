@@ -9,95 +9,33 @@ import dagshub
 # ----------------------------
 # MLflow Setup
 # ----------------------------
-mlflow.set_tracking_uri(
-    "https://dagshub.com/Iamkartikey44/youtube-sentiment-chrome-plugin.mlflow"
-)
+dagshub_token = os.getenv("DAGSHUB_TOKEN")
+if not dagshub_token:
+    raise EnvironmentError("DAGSHUB_PAT environment variable is not set")
 
-dagshub.init(
-    repo_owner='Iamkartikey44',
-    repo_name='youtube-sentiment-chrome-plugin',
-    mlflow=True
-)
+os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_token
+os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
 
-mlflow.set_experiment("dvc-pipeline-runs-v1")
+model_name="lgbm_model"
+stage ="staging"
+vectorizer_path ="tfidf_vectorizer.pkl"
+holdout_data_path="data/interim/test_processed.csv"
 
-# ----------------------------
-# Load Model & Vectorizer
-# ----------------------------
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../'))
+print("\n📊 Loading holdout dataset...")
+holdout_data = pd.read_csv(holdout_data_path)
+print(f"Dataset Shape: {holdout_data.shape}")
+print("First 5 rows:\n", holdout_data.head())
 
-with open(os.path.join(root_dir, 'lgbm_model.pkl'), "rb") as f:
-    model = pickle.load(f)
+X_holdout_raw = holdout_data.iloc[:, :-1].squeeze()
+y_holdout = holdout_data.iloc[:, -1]
 
-vectorizer_path = os.path.join(root_dir, 'tfidf_vectorizer.pkl')
+print(f"Text Samples Count: {len(X_holdout_raw)}")
+print(f"Label Distribution:\n{y_holdout.value_counts()}")
 
-with open(vectorizer_path, "rb") as f:
-    vectorizer = pickle.load(f)
+# Identify text column (first column)
+text_column = holdout_data.columns[0]
 
-# ----------------------------
-# Start MLflow Run
-# ----------------------------
-with mlflow.start_run() as run:
+# Check for NaN values
+nan_count = holdout_data[text_column].isna().sum()
 
-    print("Tracking URI:", mlflow.get_tracking_uri())
-    print("Run ID:", run.info.run_id)
-    print("Model type:", type(model))
-
-    # ----------------------------
-    # Log Vectorizer FIRST (safe)
-    # ----------------------------
-    mlflow.log_artifact(
-        vectorizer_path,
-        artifact_path="preprocessing"   # 👈 Put inside folder
-    )
-
-    # ----------------------------
-    # Prepare test data
-    # ----------------------------
-    test_data = pd.read_csv(
-        os.path.join(root_dir, 'data/interim/test_processed.csv')
-    )
-    test_data.fillna('', inplace=True)
-
-    X_test_tfidf = vectorizer.transform(test_data['clean_comment'])
-
-    input_example = pd.DataFrame(
-        X_test_tfidf.toarray()[:5],
-        columns=vectorizer.get_feature_names_out()
-    )
-
-    signature = infer_signature(
-        input_example,
-        model.predict(X_test_tfidf[:5])
-    )
-
-    # ----------------------------
-    # Log Model LAST
-    # ----------------------------
-    mlflow.sklearn.log_model(
-        sk_model=model,
-        name="model",   # 🔥 use name in MLflow 3.x
-        signature=signature,
-        input_example=input_example
-    )
-
-    print("Model logged successfully!")
-
-    # ----------------------------
-    # Register Model
-    # ----------------------------
-    run_id = run.info.run_id
-    model_uri = f"runs:/{run_id}/model"
-    model_name = "model"
-
-    print("Registering model from:", model_uri)
-
-    client = mlflow.tracking.MlflowClient()
-    model_version = client.get_latest_versions(model_name,stages=["None"])
-    #version = model_version[0].version
-
-    client.transition_model_version_stage(
-        name=model_name,
-        version=model_version[0].version,
-        stage="Staging"
-    )
+print(f"NaN values found in '{text_column}': {nan_count}")

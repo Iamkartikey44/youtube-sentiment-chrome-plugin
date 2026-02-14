@@ -71,6 +71,21 @@ def test_model_performance(model_name, stage, holdout_data_path, vectorizer_path
 
         print(f"Text Samples Count: {len(X_holdout_raw)}")
         print(f"Label Distribution:\n{y_holdout.value_counts()}")
+        # Identify text column (first column)
+        text_column = holdout_data.columns[0]
+
+        # Check for NaN values
+        nan_count = holdout_data[text_column].isna().sum()
+
+        print(f"NaN values found in '{text_column}': {nan_count}")
+
+        # Drop NaN rows only if present
+        if nan_count > 0:
+            print("⚠ Dropping rows with NaN text values...")
+            holdout_data = holdout_data.dropna(subset=[text_column])
+            print(f"Dataset Shape (After Dropping NaNs): {holdout_data.shape}")
+        else:
+            print("✅ No NaN values found in text column.")
 
         # -------------------------------
         # Step 5: Transform Text
