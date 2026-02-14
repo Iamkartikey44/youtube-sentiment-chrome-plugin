@@ -96,7 +96,7 @@ jobs:
           docker build -t yt-chrome-plugin .
 
       # Tag image
-      - name: Tag Docker image
+      - name: Tag Docker Image
         run: |
           docker tag yt-chrome-plugin:latest ${{ secrets.DOCKERHUB_USERNAME }}/yt-chrome-plugin:latest
 
