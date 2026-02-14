@@ -69,7 +69,7 @@ jobs:
       - name: Run model signature test
         run: |
           pytest scripts/test_model_signature.py
-      - name: Run Model performance test
+      - name: Run Model Performance test
         run: |
           pytest scripts/test_model_performance.py
       - name: Promote model to production
