@@ -72,7 +72,7 @@ jobs:
       - name: Run Model Performance Test
         run: |
           pytest scripts/test_model_performance.py
-      - name: Promote Model to production
+      - name: Promote Model to Production
         if: success()
         run: |
           python scripts/promote_model.py
