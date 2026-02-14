@@ -81,7 +81,6 @@ jobs:
         run: |
           python flask_app/app.py > flask.log 2>&1 &
           sleep 15
-          cat flask.log
       
       - name: Run Flask API Tests
         run: |
