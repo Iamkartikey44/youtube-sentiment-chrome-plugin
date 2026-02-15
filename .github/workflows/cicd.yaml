@@ -91,7 +91,7 @@ jobs:
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       # Build Docker image
-      - name: Build Docker image
+      - name: Build Docker Image
         run: |
           docker build -t yt-chrome-plugin .
 
